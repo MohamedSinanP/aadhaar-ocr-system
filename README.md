@@ -56,7 +56,7 @@ git clone https://github.com/MohamedSinanP/aadhaar-ocr-system.git
 cd aadhaar-ocr-system
 ```
 
-### 2. Setup Backend
+### 3. Setup Backend
 
 ```bash
 cd server
@@ -78,7 +78,7 @@ npm run dev
 
 - Backend will run at http://localhost:3001
 
-### 3. Setup Frontend
+### 4. Setup Frontend
 
 ```bash
 cd ../client
