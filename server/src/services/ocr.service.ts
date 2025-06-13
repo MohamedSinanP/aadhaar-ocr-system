@@ -1,42 +1,9 @@
 import { createWorker, PSM } from 'tesseract.js';
-import sharp from 'sharp';
 import path from 'path';
 import IOcrService from '../interfaces/services/ocr.service';
 import { AadhaarData } from '../types/type';
 
 class OcrService implements IOcrService {
-
-  // Preprocessing logic
-  private async preprocessImage(imageBuffer: Buffer): Promise<Buffer> {
-    try {
-      const metadata = await sharp(imageBuffer).metadata();
-      const width = metadata.width || 1000;
-      const height = metadata.height || 600;
-      const cropPixelsX = Math.floor(width * 0.03);
-      const cropPixelsY = Math.floor(height * 0.05);
-
-      const processedImage = await sharp(imageBuffer)
-        .extract({
-          left: cropPixelsX,
-          top: cropPixelsY,
-          width: width - 2 * cropPixelsX,
-          height: height - 2 * cropPixelsY,
-        })
-        .grayscale()
-        .normalize()
-        .linear(1.1, 5)     // gentle contrast boost
-        .sharpen(2)
-        .threshold(160)
-        .resize({ width: 2000, fit: 'inside' })
-        .rotate()
-        .toBuffer();
-
-      return processedImage;
-    } catch (err) {
-      console.error('Error in preprocessing:', err);
-      return imageBuffer;
-    }
-  }
 
   // OCR Extraction logic
   private async extractTextFromImage(imageBuffer: Buffer): Promise<string> {
@@ -60,11 +27,8 @@ class OcrService implements IOcrService {
 
   // Master function to process full Aadhaar (front & back)
   async extractAadhaarData(frontBuffer: Buffer, backBuffer: Buffer): Promise<AadhaarData> {
-    const frontPreprocessed = await this.preprocessImage(frontBuffer);
-    const backPreprocessed = await this.preprocessImage(backBuffer);
-
-    const frontText = await this.extractTextFromImage(frontPreprocessed);
-    const backText = await this.extractTextFromImage(backPreprocessed);
+    const frontText = await this.extractTextFromImage(frontBuffer);
+    const backText = await this.extractTextFromImage(backBuffer);
 
     return this.parseAadhaarText(frontText, backText);
   }
@@ -79,9 +43,6 @@ class OcrService implements IOcrService {
 
     const cleanedFront = clean(frontText);
     const cleanedBack = clean(backText);
-
-    console.log(cleanedFront, cleanedBack);
-
 
     // Regex extraction (stronger rules now)
     const dobRegex = /(?:DOB|Date of Birth|DoB|D0B|Date)\s*[:\-]?\s*(\d{2}\/\d{2}\/\d{4})/i;
