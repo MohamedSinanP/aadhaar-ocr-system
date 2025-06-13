@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, ArrowLeft, Download, Copy, Upload } from 'lucide-react';
+import { Check, ArrowLeft, Copy, Upload } from 'lucide-react';
 import Header from '../components/Header';
 import type { ResultsPageProps } from '../types/type';
 
