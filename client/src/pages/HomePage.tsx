@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, Check, X, Camera, Sparkles, Copy, ArrowLeft } from 'lucide-react';
+import { Upload, FileText, Check, X, Camera, Sparkles, Copy, ArrowLeft, RotateCcw, Clipboard } from 'lucide-react';
 import Header from '../components/Header';
 import Features from '../components/Features';
 import type { DragOverState, ImageData, ImageSide, OCRResults } from '../types/type';
@@ -134,6 +134,28 @@ const AadhaarOCRHomePage: React.FC = () => {
       setCopySuccess(field);
       setTimeout(() => setCopySuccess(''), 2000);
     });
+  };
+
+  const copyAllData = () => {
+    if (!ocrResults) return;
+
+    const allData = `Name: ${ocrResults.name}
+Date of Birth: ${ocrResults.dob}
+Gender: ${ocrResults.gender}
+Aadhaar Number: ${ocrResults.aadhaarNumber}
+Address: ${ocrResults.address}
+Pincode: ${ocrResults.pincode}`;
+
+    navigator.clipboard.writeText(allData).then(() => {
+      setCopySuccess('all');
+      toast.success('All data copied to clipboard!');
+      setTimeout(() => setCopySuccess(''), 2000);
+    });
+  };
+
+  const retryOCR = () => {
+    setOcrResults(null);
+    processOCR();
   };
 
   return (
@@ -323,13 +345,33 @@ const AadhaarOCRHomePage: React.FC = () => {
                     <Check className="w-6 h-6 text-green-500 mr-2" />
                     Extracted Information
                   </h3>
-                  <button
-                    onClick={resetAll}
-                    className="inline-flex items-center px-3 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-1" />
-                    Reset
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={copyAllData}
+                      className="inline-flex items-center px-3 py-2 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <Clipboard className="w-4 h-4 mr-1" />
+                      Copy All
+                    </button>
+                    <button
+                      onClick={retryOCR}
+                      disabled={processing}
+                      className={`inline-flex items-center px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer ${processing
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'
+                        }`}
+                    >
+                      <RotateCcw className="w-4 h-4 mr-1" />
+                      Retry
+                    </button>
+                    <button
+                      onClick={resetAll}
+                      className="inline-flex items-center px-3 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      Reset
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
